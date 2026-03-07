@@ -1,0 +1,11 @@
+[
+  {
+    "id": "sample1",
+    "title": "Welcome to Brokenshire College Toril",
+    "date": "2025-03-07",
+    "category": "announcement",
+    "content": "We are excited to announce the start of enrollment for School Year 2025-2026. Visit our admissions page for more information.",
+    "image": "images/news/default.jpg",
+    "timestamp": "2025-03-07T10:00:00Z"
+  }
+]
