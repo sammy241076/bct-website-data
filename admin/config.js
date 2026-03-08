@@ -63,46 +63,30 @@ function escapeHtml(text) {
     div.textContent = text;
     return div.innerHTML;
 }
-// Unicode-safe base64 encode (handles special characters properly)
-function unicodeToBase64(str) {
-    // Convert string to UTF-8 bytes then to base64
-    const utf8Bytes = new TextEncoder().encode(str);
-    let binary = '';
-    utf8Bytes.forEach(byte => {
-        binary += String.fromCharCode(byte);
-    });
-    return btoa(binary);
-}
-
-// Unicode-safe base64 decode (handles special characters properly)
-function base64ToUnicode(base64) {
-    try {
-        // Decode base64 to binary string
-        const binary = atob(base64);
-        // Convert binary string to UTF-8 bytes
-        const bytes = new Uint8Array(binary.length);
-        for (let i = 0; i < binary.length; i++) {
-            bytes[i] = binary.charCodeAt(i);
-        }
-        // Decode UTF-8 bytes to string
-        return new TextDecoder().utf8 ? new TextDecoder().decode(bytes) : decodeURIComponent(escape(binary));
-    } catch (e) {
-        console.error('Base64 decode error:', e);
-        return base64;
-    }
-}
-
-// Fallback for older browsers
-if (!window.TextEncoder) {
-    window.TextEncoder = function() {};
-    window.TextEncoder.prototype.encode = function(str) {
-        return unescape(encodeURIComponent(str)).split('').map(c => c.charCodeAt(0));
-    };
-}
-
-if (!window.TextDecoder) {
-    window.TextDecoder = function() {};
-    window.TextDecoder.prototype.decode = function(bytes) {
-        return decodeURIComponent(escape(String.fromCharCode.apply(null, bytes)));
-    };
+// Simple function to convert Unicode special characters to regular text
+function unicodeToPlainText(text) {
+    if (!text) return '';
+    
+    // Normalize and remove special formatting
+    return text.normalize('NFKD')
+        .replace(/[\u{1D400}-\u{1D419}]/gu, function(c) {
+            // Convert mathematical bold capital letters
+            return String.fromCharCode(c.charCodeAt(0) - 0x1D400 + 65);
+        })
+        .replace(/[\u{1D41A}-\u{1D433}]/gu, function(c) {
+            // Convert mathematical bold lowercase letters
+            return String.fromCharCode(c.charCodeAt(0) - 0x1D41A + 97);
+        })
+        .replace(/[\u{1D56C}-\u{1D585}]/gu, function(c) {
+            // Convert mathematical bold capital letters
+            return String.fromCharCode(c.charCodeAt(0) - 0x1D56C + 65);
+        })
+        .replace(/[\u{1D586}-\u{1D59F}]/gu, function(c) {
+            // Convert mathematical bold lowercase letters
+            return String.fromCharCode(c.charCodeAt(0) - 0x1D586 + 97);
+        })
+        .replace(/[\u00A0-\u9999<>]/g, function(c) {
+            // Keep other characters as is
+            return c;
+        });
 }
