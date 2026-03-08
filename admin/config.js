@@ -56,37 +56,61 @@ function fileToBase64(file) {
         reader.onerror = error => reject(error);
     });
 }
+
+// SIMPLE FUNCTION: Convert Unicode special characters to plain text
+// This converts mathematical bold, script, etc. to regular text
+function unicodeToPlainText(text) {
+    if (!text) return '';
+    
+    // Normalize the text first
+    let normalized = text.normalize('NFKD');
+    
+    // Handle mathematical bold characters (like 𝐁𝐂𝐓)
+    // These are in Unicode range U+1D400 to U+1D433
+    const result = [];
+    
+    for (let i = 0; i < normalized.length; i++) {
+        const char = normalized[i];
+        const code = char.charCodeAt(0);
+        
+        // Mathematical bold capital letters (A-Z) - U+1D400 to U+1D419
+        if (code >= 0x1D400 && code <= 0x1D419) {
+            // Convert to regular capital letter
+            result.push(String.fromCharCode(code - 0x1D400 + 65));
+        }
+        // Mathematical bold small letters (a-z) - U+1D41A to U+1D433
+        else if (code >= 0x1D41A && code <= 0x1D433) {
+            // Convert to regular lowercase letter
+            result.push(String.fromCharCode(code - 0x1D41A + 97));
+        }
+        // Mathematical bold italic capital letters - U+1D468 to U+1D481
+        else if (code >= 0x1D468 && code <= 0x1D481) {
+            result.push(String.fromCharCode(code - 0x1D468 + 65));
+        }
+        // Mathematical bold italic small letters - U+1D482 to U+1D49B
+        else if (code >= 0x1D482 && code <= 0x1D49B) {
+            result.push(String.fromCharCode(code - 0x1D482 + 97));
+        }
+        // Mathematical sans-serif bold capital letters - U+1D5D4 to U+1D5ED
+        else if (code >= 0x1D5D4 && code <= 0x1D5ED) {
+            result.push(String.fromCharCode(code - 0x1D5D4 + 65));
+        }
+        // Mathematical sans-serif bold small letters - U+1D5EE to U+1D607
+        else if (code >= 0x1D5EE && code <= 0x1D607) {
+            result.push(String.fromCharCode(code - 0x1D5EE + 97));
+        }
+        // Keep other characters as is
+        else {
+            result.push(char);
+        }
+    }
+    
+    return result.join('');
+}
 // Helper function to escape HTML (for metadata only)
 function escapeHtml(text) {
     if (!text) return '';
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
-}
-// Simple function to convert Unicode special characters to regular text
-function unicodeToPlainText(text) {
-    if (!text) return '';
-    
-    // Normalize and remove special formatting
-    return text.normalize('NFKD')
-        .replace(/[\u{1D400}-\u{1D419}]/gu, function(c) {
-            // Convert mathematical bold capital letters
-            return String.fromCharCode(c.charCodeAt(0) - 0x1D400 + 65);
-        })
-        .replace(/[\u{1D41A}-\u{1D433}]/gu, function(c) {
-            // Convert mathematical bold lowercase letters
-            return String.fromCharCode(c.charCodeAt(0) - 0x1D41A + 97);
-        })
-        .replace(/[\u{1D56C}-\u{1D585}]/gu, function(c) {
-            // Convert mathematical bold capital letters
-            return String.fromCharCode(c.charCodeAt(0) - 0x1D56C + 65);
-        })
-        .replace(/[\u{1D586}-\u{1D59F}]/gu, function(c) {
-            // Convert mathematical bold lowercase letters
-            return String.fromCharCode(c.charCodeAt(0) - 0x1D586 + 97);
-        })
-        .replace(/[\u00A0-\u9999<>]/g, function(c) {
-            // Keep other characters as is
-            return c;
-        });
 }
