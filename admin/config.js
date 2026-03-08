@@ -63,4 +63,46 @@ function escapeHtml(text) {
     div.textContent = text;
     return div.innerHTML;
 }
+// Unicode-safe base64 encode (handles special characters properly)
+function unicodeToBase64(str) {
+    // Convert string to UTF-8 bytes then to base64
+    const utf8Bytes = new TextEncoder().encode(str);
+    let binary = '';
+    utf8Bytes.forEach(byte => {
+        binary += String.fromCharCode(byte);
+    });
+    return btoa(binary);
+}
 
+// Unicode-safe base64 decode (handles special characters properly)
+function base64ToUnicode(base64) {
+    try {
+        // Decode base64 to binary string
+        const binary = atob(base64);
+        // Convert binary string to UTF-8 bytes
+        const bytes = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i++) {
+            bytes[i] = binary.charCodeAt(i);
+        }
+        // Decode UTF-8 bytes to string
+        return new TextDecoder().utf8 ? new TextDecoder().decode(bytes) : decodeURIComponent(escape(binary));
+    } catch (e) {
+        console.error('Base64 decode error:', e);
+        return base64;
+    }
+}
+
+// Fallback for older browsers
+if (!window.TextEncoder) {
+    window.TextEncoder = function() {};
+    window.TextEncoder.prototype.encode = function(str) {
+        return unescape(encodeURIComponent(str)).split('').map(c => c.charCodeAt(0));
+    };
+}
+
+if (!window.TextDecoder) {
+    window.TextDecoder = function() {};
+    window.TextDecoder.prototype.decode = function(bytes) {
+        return decodeURIComponent(escape(String.fromCharCode.apply(null, bytes)));
+    };
+}
