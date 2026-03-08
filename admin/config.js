@@ -56,3 +56,11 @@ function fileToBase64(file) {
         reader.onerror = error => reject(error);
     });
 }
+// Helper function to escape HTML (for metadata only)
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
