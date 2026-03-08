@@ -1,6 +1,6 @@
 // GitHub configuration for Brokenshire College Toril News System
 const GITHUB_CONFIG = {
-    token: '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',
+    token: ' ',
     owner: 'sammy241076',
     repo: 'bct-website-data',
     path: 'news.json',
