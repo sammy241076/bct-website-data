@@ -16,9 +16,14 @@ function generateId() {
     return Date.now().toString(36) + Math.random().toString(36).substr(2);
 }
 
-// NEW: Function to upload image to GitHub
-async function uploadImageToGitHub(file, fileName) {
-    const url = `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.uploadsPath}${fileName}`;
+// Function to upload image to GitHub as a separate file
+async function uploadImageToGitHub(file, newsId) {
+    // Create a clean filename: newsId-timestamp.extension
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${newsId}-${Date.now()}.${fileExt}`;
+    const filePath = GITHUB_CONFIG.uploadsPath + fileName;
+    
+    const url = `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${filePath}`;
     
     // Convert file to base64
     const base64Content = await fileToBase64(file);
@@ -33,18 +38,19 @@ async function uploadImageToGitHub(file, fileName) {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-            message: `Upload image: ${fileName}`,
+            message: `Upload image for news article ${newsId}`,
             content: content
         })
     });
     
     if (!response.ok) {
-        throw new Error('Failed to upload image');
+        const errorData = await response.json();
+        throw new Error(`Failed to upload image: ${errorData.message || response.status}`);
     }
     
     const data = await response.json();
     // Return the raw GitHub URL of the uploaded image
-    return data.content.download_url;
+    return `https://raw.githubusercontent.com/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/main/${filePath}`;
 }
 
 // Helper: Convert file to base64
@@ -58,7 +64,6 @@ function fileToBase64(file) {
 }
 
 // SIMPLE FUNCTION: Convert Unicode special characters to plain text
-// This converts mathematical bold, script, etc. to regular text
 function unicodeToPlainText(text) {
     if (!text) return '';
     
@@ -66,7 +71,6 @@ function unicodeToPlainText(text) {
     let normalized = text.normalize('NFKD');
     
     // Handle mathematical bold characters (like 𝐁𝐂𝐓)
-    // These are in Unicode range U+1D400 to U+1D433
     const result = [];
     
     for (let i = 0; i < normalized.length; i++) {
@@ -75,12 +79,10 @@ function unicodeToPlainText(text) {
         
         // Mathematical bold capital letters (A-Z) - U+1D400 to U+1D419
         if (code >= 0x1D400 && code <= 0x1D419) {
-            // Convert to regular capital letter
             result.push(String.fromCharCode(code - 0x1D400 + 65));
         }
         // Mathematical bold small letters (a-z) - U+1D41A to U+1D433
         else if (code >= 0x1D41A && code <= 0x1D433) {
-            // Convert to regular lowercase letter
             result.push(String.fromCharCode(code - 0x1D41A + 97));
         }
         // Mathematical bold italic capital letters - U+1D468 to U+1D481
@@ -107,7 +109,8 @@ function unicodeToPlainText(text) {
     
     return result.join('');
 }
-// Helper function to escape HTML (for metadata only)
+
+// Helper function to escape HTML (for safe display)
 function escapeHtml(text) {
     if (!text) return '';
     const div = document.createElement('div');
