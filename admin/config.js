@@ -5,9 +5,9 @@ const GITHUB_CONFIG = {
     repo: 'bct-website-data',
     path: 'news.json',
     branch: 'main',
-    uploadsPath: 'uploads/news/'  // Folder for images
+    uploadsPath: 'uploads/news/' , // Folder for images
        // ... existing properties
-    testimonialsPath: 'testimonials.json',  // new
+    testimonialsPath: 'testimonials.json'  // new
 };
 
 function getTimestamp() {
