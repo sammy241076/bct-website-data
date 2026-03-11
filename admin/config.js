@@ -6,6 +6,8 @@ const GITHUB_CONFIG = {
     path: 'news.json',
     branch: 'main',
     uploadsPath: 'uploads/news/'  // Folder for images
+       // ... existing properties
+    testimonialsPath: 'testimonials.json',  // new
 };
 
 function getTimestamp() {
