@@ -4,10 +4,10 @@ const GITHUB_CONFIG = {
     owner: 'sammy241076',
     repo: 'bct-website-data',
     path: 'news.json',
+    testimonialsPath: 'testimonials.json', // new testimonials data
     branch: 'main',
-    uploadsPath: 'uploads/news/' , // Folder for images
-       // ... existing properties
-    testimonialsPath: 'testimonials.json'  // new
+    uploadsPath: 'uploads/news/'  // Folder for images
+     
 };
 
 function getTimestamp() {
