@@ -5,7 +5,7 @@ const GITHUB_CONFIG = {
     repo: 'bct-website-data',
     path: 'news.json',
     testimonialsPath: 'testimonials.json', // new testimonials data
-    campusvideosPath: 'campusvideos.json'
+    campusvideosPath: 'campusvideos.json',
     branch: 'main',
     uploadsPath: 'uploads/news/'  // Folder for images
      
